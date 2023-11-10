@@ -1,6 +1,23 @@
 ## Introduction
 
-This poc downloads any video from youtube, converts it to MP3, transcribes it, summarizes it and creates a PDF with the summary.
+This poc:
+
+- Downloads any video and audio from youtube and vimeo
+- Converts to MP3
+- Transcribes
+- Summarize
+- Creates a PDF with the summary
+
+
+## Vimeo
+
+To download videos you have to:
+
+1.  Open the browser developer tools on the network tab (`F12` on Windows/Linux, `CMD + Option + I` on Mac OS).
+2.  Start the video (or move mouse over the video).
+3.  In the "Network" tab, locate the load of the `master.json` file, copy its full URL.
+3.1. In some cases Vimeo sends you encrypted video data, that you can workaround by either removing 'query_string_ranges' query parameter and/or adding 'base64_init=1' to it. 
+4.  Fill with this full URL in the environment variable `LINK` in the `.env` file.
 
 ## Setup
 
@@ -21,6 +38,8 @@ This poc downloads any video from youtube, converts it to MP3, transcribes it, s
 
 ### How to use
 - ```pnpm install```
+- ```pnpm build```
+
 - Create .env file and fill in information based on .env.example
 - ```pnpm start```
 

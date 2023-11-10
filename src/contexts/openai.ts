@@ -6,15 +6,11 @@ import {
 } from "../libs/folder";
 import { createSummary } from "../libs/openai";
 import { createPDFFromTXT } from "../libs/pdf";
+import { downloadVimeo } from "../libs/vimeo";
 import { downloadYouTubeVideoAsMP3 } from "../libs/youtube";
-import {
-  segmentsPath,
-  summaryFinalSegmentPath,
-  summaryPath,
-  summarySegmentPath,
-  textSegmentPath,
-} from "../utils/const";
-import { calculateTime, delay } from "../utils/misc";
+import { vimeoPath, youtubePath } from "../utils/const";
+
+import { calculateTime } from "../utils/misc";
 
 export const OpenAiContext = () => {
   let startDate = new Date();
@@ -28,40 +24,51 @@ export const OpenAiContext = () => {
     console.log(`Time spent: ${calculateTime(startDate, end)}`);
   }
 
-  function resetStructure() {
-    deleteFolderIfExists("source");
-    createDirectoryIfNotExists(textSegmentPath);
-    createDirectoryIfNotExists(summarySegmentPath);
-    createDirectoryIfNotExists(summaryFinalSegmentPath);
-    createDirectoryIfNotExists(segmentsPath);
+  function prepareStructure() {
+    if (process.env.CONFIG_DELETE === "true") deleteFolderIfExists("source");
+
+    createDirectoryIfNotExists(youtubePath.textSegment);
+    createDirectoryIfNotExists(youtubePath.summarySegment);
+    createDirectoryIfNotExists(youtubePath.segments);
+
+    createDirectoryIfNotExists(vimeoPath.textSegment);
+    createDirectoryIfNotExists(vimeoPath.summarySegment);
+    createDirectoryIfNotExists(vimeoPath.segments);
   }
 
   async function transcribeVideo() {
-    await downloadYouTubeVideoAsMP3();
-    await splitAudioAndTranscribe();
+    const ref = process.env.CONFIG_SOURCE === "vimeo" ? vimeoPath : youtubePath;
+
+    if (process.env.CONFIG_SOURCE === "youtube")
+      await downloadYouTubeVideoAsMP3(ref.mp3);
+
+    if (process.env.CONFIG_SOURCE === "vimeo") await downloadVimeo();
+
+    await splitAudioAndTranscribe(ref.mp3, ref.segments, ref.textSegment);
   }
 
   async function getSummary() {
-    await createSummary(textSegmentPath);
-    const txtContent = await joinTextFiles(summarySegmentPath);
-    saveTextToFile(txtContent, summaryPath);
-    await delay(1000);
+    const ref = process.env.CONFIG_SOURCE === "vimeo" ? vimeoPath : youtubePath;
 
-    // await createSummaryFromSummary(summaryPath);
-    // const finalContent = await joinTextFiles(summaryFinalSegmentPath);
-    // saveTextToFile(finalContent, summaryFinalPath);
+    await createSummary(ref.textSegment, ref.summarySegment, ref.text);
+    const txtContent = await joinTextFiles(ref.summarySegment);
+    saveTextToFile(txtContent, ref.summary);
   }
 
   async function createPDF() {
-    await createPDFFromTXT(summaryPath);
+    const ref = process.env.CONFIG_SOURCE === "vimeo" ? vimeoPath : youtubePath;
+
+    await createPDFFromTXT(ref.summary, ref.pdf);
   }
 
   async function init() {
     startTime();
-    resetStructure();
-    await transcribeVideo();
-    await getSummary();
-    await createPDF();
+
+    prepareStructure();
+
+    if (process.env.CONFIG_TRANSCRIBE === "true") await transcribeVideo();
+    if (process.env.CONFIG_GET_SUMMARY === "true") await getSummary();
+    if (process.env.CONFIG_CREATE_PDF === "true") await createPDF();
     closeTime();
   }
 

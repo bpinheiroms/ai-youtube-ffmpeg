@@ -1,10 +1,9 @@
 import fs from "fs";
 import ffmpeg from "fluent-ffmpeg";
-import { mp3Path, segmentsPath } from "../utils/const";
 import { transcribeBySegment } from "./openai";
 import { delay } from "../utils/misc";
 
-export const splitAudioAndTranscribe = async () => {
+export const splitAudioAndTranscribe = async (mp3Path: string, segmentsPath: string, textSegmentPath:string) => {
   return new Promise(async (resolve, reject) => {
     const segmentDuration = 5;
 
@@ -39,7 +38,7 @@ export const splitAudioAndTranscribe = async () => {
               console.log(
                 `Segment ${i + 1} of ${numSegments} cut successfully.`
               );
-              await transcribeBySegment(segmentOutputPath, i + 1);
+              await transcribeBySegment(segmentOutputPath, i + 1, textSegmentPath);
               resolve();
             })
             .on("error", (err) => {
@@ -58,6 +57,35 @@ export const splitAudioAndTranscribe = async () => {
       console.error(
         "[splitAudioAndTranscribe] - An error occurred while cutting and saving segments:",
         error.message
+      );
+      return reject(error);
+    }
+  });
+};
+
+export const convertToMp3 = async (filePath: string, savePath: string) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      ffmpeg()
+        .input(filePath)
+        .audioCodec("libmp3lame")
+        .audioBitrate("20k")
+        .save(savePath)
+        .on("end", async () => {
+          console.log("Download and conversion to MP3 completed");
+          return resolve(null);
+        })
+        .on("error", (err) => {
+          console.error(
+            "An error occurred during download and conversion:",
+            err
+          );
+          return reject(err);
+        });
+    } catch (error) {
+      console.error(
+        "An error occurred while getting video information:",
+        error
       );
       return reject(error);
     }

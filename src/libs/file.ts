@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import { createDirectoryIfNotExists } from "./folder";
 import path from "path";
 
 export const removeFile = (filePath: string): Promise<void> => {

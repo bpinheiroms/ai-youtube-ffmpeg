@@ -1,9 +1,8 @@
 import ffmpeg from "fluent-ffmpeg";
 import ytdl from "ytdl-core";
-import { mp3Path } from "../utils/const";
 import { delay } from "../utils/misc";
 
-export const downloadYouTubeVideoAsMP3 = async (): Promise<void> => {
+export const downloadYouTubeVideoAsMP3 = async (mp3Path: string): Promise<void> => {
   return new Promise(async (resolve, reject) => {
     try {
       const videoUrl = process.env.LINK ?? '';

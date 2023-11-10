@@ -1,19 +1,17 @@
 import axios from "axios";
 import FormData from "form-data";
-import { joinTextFiles, readFile, readTextFile, saveTextToFile } from "./file";
-import {
-  mp3Path,
-  summaryFinalSegmentPath,
-  summaryPath,
-  summarySegmentPath,
-  textPath,
-  textSegmentPath,
-} from "../utils/const";
+import { joinTextFiles, readFile, saveTextToFile } from "./file";
+
 import { delay } from "../utils/misc";
+
+const contentRole = `Você está lendo uma transcrição de um video que aborda ${
+  process.env.SUMMARY ?? ""
+}. Faça um resumo organizado em bullets, destacando os principais pontos abordados, sem perder as dicas e recomendações dadas pelo autor, não repetir conceitos e exemplos, falar em primeira pessoa.`;
 
 export const transcribeBySegment = async (
   segmentPath: string,
-  index: number
+  index: number,
+  textSegmentPath: string
 ): Promise<void> => {
   try {
     const segmentData = readFile(segmentPath);
@@ -28,7 +26,7 @@ export const transcribeBySegment = async (
       formData,
       {
         headers: {
-          Authorization: `Bearer ${process.env.OPEN_AI_KEY ?? ''}`,
+          Authorization: `Bearer ${process.env.OPEN_AI_KEY ?? ""}`,
           ...formData.getHeaders(),
         },
       }
@@ -47,37 +45,8 @@ export const transcribeBySegment = async (
   }
 };
 
-export const transcribeAudio = async (): Promise<void> => {
-  try {
-    const audioData = readFile(mp3Path);
-    const audioBuffer = Buffer.from(audioData);
 
-    const formData = new FormData();
-    formData.append("file", audioBuffer, "audio.mp3");
-    formData.append("model", "whisper-1");
-
-    const response = await axios.post(
-      "https://api.openai.com/v1/audio/transcriptions",
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.OPEN_AI_KEY ?? ''}`,
-          ...formData.getHeaders(),
-        },
-      }
-    );
-
-    console.log("Transcription completed successfully.");
-    saveTextToFile(response.data.text, textPath);
-  } catch (error: any) {
-    console.error(
-      "An error occurred during transcription:",
-      error.response.data
-    );
-  }
-};
-
-export const createSummary = async (path: string) => {
+export const createSummary = async (path: string, summarySegmentPath: string, textPath: string) => {
   return new Promise(async (resolve, reject) => {
     try {
       const text = await joinTextFiles(path);
@@ -90,12 +59,7 @@ export const createSummary = async (path: string) => {
         outputParts.push(text.slice(i, i + size));
       }
 
-      const messages = [
-        {
-          role: "user",
-          content: `O texto abaixo é uma transcrição de um video sobre: ${process.env.SUMMARY ?? ''}, faça um breve resumo, bem organizado em bullets de fácil compreenssão, sobre o que foi dito no video, junte todo o aprendizado de forma que o último seja um resumo de todos os anteriores juntos`,
-        },
-      ];
+      const messages = [{ role: "user", content: contentRole }];
 
       if (outputParts) {
         for (const [index, part] of outputParts.entries()) {
@@ -108,7 +72,7 @@ export const createSummary = async (path: string) => {
             {
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPEN_AI_KEY ?? ''}`,
+                Authorization: `Bearer ${process.env.OPEN_AI_KEY ?? ""}`,
               },
             }
           );
@@ -133,63 +97,4 @@ export const createSummary = async (path: string) => {
       return reject();
     }
   });
-};
-
-export const createSummaryFromSummary = async (path: string) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const text = readTextFile(path);
-  
-      const size = 4096;
-      const outputParts = [];
-  
-      for (let i = 0; i < text.length; i += size) {
-        outputParts.push(text.slice(i, i + size));
-      }
-  
-      const messages = [
-        {
-          role: "user",
-          content: `O texto abaixo é uma transcrição de um video sobre: ${process.env.SUMMARY ?? ''}, faça um breve resumo, bem organizado em bullets de fácil compreenssão, sobre o que foi dito no video, junte todo o aprendizado de forma que o último seja um resumo de todos os anteriores juntos`,
-        },
-      ];
-  
-      if (outputParts) {
-        for (const [index, part] of outputParts.entries()) {
-          const response = await axios.post(
-            "https://api.openai.com/v1/chat/completions",
-            {
-              model: "gpt-3.5-turbo",
-              messages: [...messages, { role: "user", content: part }],
-            },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${process.env.OPEN_AI_KEY ?? ''}`,
-              },
-            }
-          );
-  
-          saveTextToFile(
-            response.data.choices[0].message?.content,
-            `${summaryFinalSegmentPath}/summary_${index + 1}.txt`
-          );
-          console.log(
-            `Final -> Output part ${index + 1} of ${
-              outputParts.length
-            } received successfully.`
-          );
-        }
-      } else {
-        console.error("No output parts found.");
-      }
-  
-      return resolve(null);
-    } catch (error: any) {
-      console.error("An error occurred:", error);
-      return reject();
-    }
-  })
-
- 
 };

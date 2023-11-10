@@ -1,9 +1,24 @@
-export const mp3Path = "source/audio.mp3";
-export const textPath = "source/text.txt";
-export const textSegmentPath = "source/text/segments";
-export const summarySegmentPath = "source/summary/segments";
-export const summaryFinalSegmentPath = "source/summary_final/segments";
-export const summaryPath = "source/summary.txt";
-export const summaryFinalPath = "source/summary_final.txt";
-export const pdfPath = "source/summary.pdf";
-export const segmentsPath = "source/audio/segments";
+export const youtubePath = {
+  root: 'source/youtube/',
+  mp3: "source/youtube/audio.mp3",
+  text: "source/youtube/text.txt",
+  textSegment: "source/youtube/text/segments",
+  summarySegment: "source/youtube/summary/segments",
+  summary: "source/youtube/summary.txt",
+  pdf: "source/youtube/summary.pdf",
+  segments: "source/youtube/audio/segments",
+}
+
+export const vimeoPath = {
+  root: 'source/vimeo/',
+  mp3: "source/vimeo/Audio.mp3",
+  text: "source/vimeo/text.txt",
+  textSegment: "source/vimeo/text/segments",
+  summarySegment: "source/vimeo/summary/segments",
+  summary: "source/vimeo/summary.txt",
+  pdf: "source/vimeo/summary.pdf",
+  segments: "source/vimeo/audio/segments",
+}
+
+
+
