@@ -18,8 +18,8 @@ export const downloadYouTubeVideoAsMP3 = async (mp3Path: string): Promise<void> 
         .audioBitrate("20k")
         .save(mp3Path)
         .on("end", async () => {
-          console.log("Download and conversion to MP3 completed");
-          console.log(`Waiting 20 seconds for the next action`);
+          console.log("✅ Download and conversion to MP3 completed");
+          console.log(`🕐 Waiting 20 seconds for the next action`);
           await delay(2000);
           return resolve();
         })

@@ -24,7 +24,6 @@ export const readFile = (filePath: string): Buffer => {
 
 export const saveTextToFile = (text: string, filePath: string): void => {
   fs.writeFileSync(filePath, text, "utf8");
-  console.log(`Text saved in ${filePath}`);
 };
 
 export const getBuffersFromFiles = async (

@@ -39,5 +39,5 @@ export const createPDFFromTXT = async (path: string, pdfPath: string, joinFiles?
 
   doc.end();
 
-  console.log(`PDF file created at ${pdfPath}`);
+  console.log(`✅ PDF file created at ${pdfPath}`);
 };

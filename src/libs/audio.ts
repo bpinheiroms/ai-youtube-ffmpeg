@@ -36,7 +36,7 @@ export const splitAudioAndTranscribe = async (mp3Path: string, segmentsPath: str
             .setDuration(segmentDuration * 60)
             .on("end", async () => {
               console.log(
-                `Segment ${i + 1} of ${numSegments} cut successfully.`
+                `✅ Segmenting ${i + 1}/${numSegments} cut successfully.`
               );
               await transcribeBySegment(segmentOutputPath, i + 1, textSegmentPath);
               resolve();
@@ -49,8 +49,8 @@ export const splitAudioAndTranscribe = async (mp3Path: string, segmentsPath: str
         });
       }
 
-      console.log("Cutting and saving of successfully completed segments.");
-      console.log(`Waiting 10 seconds for the next action`);
+      console.log("✅ Cutting and saving of successfully completed segments.");
+      console.log(`🕐 Waiting 10 seconds for the next action`);
       await delay(1000);
       return resolve(null);
     } catch (error: any) {
@@ -72,7 +72,7 @@ export const convertToMp3 = async (filePath: string, savePath: string) => {
         .audioBitrate("20k")
         .save(savePath)
         .on("end", async () => {
-          console.log("Download and conversion to MP3 completed");
+          console.log("✅ Download and conversion to MP3 completed");
           return resolve(null);
         })
         .on("error", (err) => {

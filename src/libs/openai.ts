@@ -32,10 +32,10 @@ export const transcribeBySegment = async (
       }
     );
 
-    console.log(`Transcription by segment completed successfully.`);
+    console.log(`📃 [OpenAI] Transcription by segment completed successfully.`);
     saveTextToFile(response.data.text, `${textSegmentPath}/text_${index}.txt`);
 
-    console.log(`Waiting 3 seconds for the next segment.`);
+    console.log(`🕐 Waiting 3 seconds for the next segment.`);
     await delay(300);
   } catch (error: any) {
     console.error(
@@ -82,7 +82,7 @@ export const createSummary = async (path: string, summarySegmentPath: string, te
             `${summarySegmentPath}/summary_${index + 1}.txt`
           );
           console.log(
-            `Output part ${index + 1} of ${
+            `✅ [OpenAI] Summary part ${index + 1}/${
               outputParts.length
             } received successfully.`
           );

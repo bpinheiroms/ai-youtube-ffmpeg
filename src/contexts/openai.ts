@@ -21,7 +21,7 @@ export const OpenAiContext = () => {
 
   function closeTime() {
     const end = new Date();
-    console.log(`Time spent: ${calculateTime(startDate, end)}`);
+    console.log(`⌛️ Time spent: ${calculateTime(startDate, end)}`);
   }
 
   function prepareStructure() {

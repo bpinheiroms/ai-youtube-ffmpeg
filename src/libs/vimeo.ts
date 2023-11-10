@@ -123,7 +123,6 @@ async function processFile(
       return;
     }
 
-    console.log(vimeoPath)
     const file = filename.replace(/[^\w.]/gi, "-");
     const filePath = `${vimeoPath.root}/${file}`;
     const downloadingFlag = `${vimeoPath.root}/.${file}~`;
