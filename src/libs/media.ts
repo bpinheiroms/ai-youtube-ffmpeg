@@ -91,3 +91,26 @@ export const convertToMp3 = async (filePath: string, savePath: string) => {
     }
   });
 };
+
+export const joinFiles = async (audioPath: string, videoPath: string, destinationPath: string): Promise<void>  => {
+  console.log('⚙️ Joining files ...')
+  
+  return new Promise((resolve, reject) => {
+    ffmpeg()
+        .addInput(videoPath)
+        .addInput(audioPath)
+        .outputOptions('-c:v copy')
+        .outputOptions('-c:a aac')
+        .outputOptions('-strict experimental')
+        .output(destinationPath)
+        .on('end', () => {
+            console.log('✅ Process was finished, file:', destinationPath);
+            resolve();
+        })
+        .on('error', (err) => {
+            console.error('Error:', err.message);
+            reject(err);
+        })
+        .run();
+});
+}

@@ -21,4 +21,8 @@ export const vimeoPath = {
 }
 
 
+export const storagePath = {
+  root: 'storage/',
+}
+
 

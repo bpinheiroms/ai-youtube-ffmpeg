@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import path from "path";
+import { createDirectoryIfNotExists } from "./folder";
 
 export const removeFile = (filePath: string): Promise<void> => {
   return new Promise<void>((resolve, reject) => {
@@ -76,3 +77,20 @@ export const joinTextFiles = async (folderPath: string): Promise<string> => {
     throw error;
   }
 };
+
+export const moveFile = async (path: string, newPath: string) => {
+  return new Promise<void>((resolve, reject) => {
+
+    const folder = newPath.split("/").slice(0, -1).join("/");
+    createDirectoryIfNotExists(folder)
+
+    fs.rename(path, newPath, (err) => {
+      if (err) {
+        reject(err);
+      } else {
+        console.log("File moved:", path, newPath);
+        resolve();
+      }
+    });
+  });
+}
